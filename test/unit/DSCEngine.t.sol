@@ -1,4 +1,4 @@
-//SPDX-License-Identifier : MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
 
@@ -9,7 +9,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {ERC20Mock} from "../../extra_contracts/ERC20Mock.sol";
 
-contract DSCEngineTest is Test{
+contract DSCEngineTest is Test {
     DeployDSC deployer;
     DSC dsc;
     DSCEngine dsce;
@@ -26,30 +26,38 @@ contract DSCEngineTest is Test{
         (dsc, dsce, config) = deployer.run();
         (ethUsdPriceFeed, , weth, , ) = config.activeNetworkConfig();
 
-        ERC20Mock(weth).mint(USER,STARTING_ERC20_BALANCE);
+        // Mint some tokens for the test user
+        ERC20Mock(weth).mint(USER, STARTING_ERC20_BALANCE);
     }
 
     ///////////////
-    //Price Tests//
+    // Price Tests
     ///////////////
 
-    function testGetUsdValue() public view{
-        uint256 ethAmount = 15e18;
-        uint256 expectedUsd = 30000e18;
+    function testGetUsdValue() public {
+        // Arrange
+        uint256 ethAmount = 15e18; // 15 ETH
+        uint256 expectedUsd = 30000e18; // Assuming 1 ETH = $2000, so 15 ETH = $30,000
+
+        // Act
         uint256 actualUsd = dsce.getUsdValue(weth, ethAmount);
-        assertEq(expectedUsd, actualUsd);
+
+        // Assert
+        assertEq(expectedUsd, actualUsd, "The USD value returned does not match the expected value.");
     }
 
-     /////////////////////////////
+    /////////////////////////////
     // depositCollateral Tests //
     /////////////////////////////
 
     function testRevertsIfCollateralZero() public {
-        vm.startPrank(USER);
+        vm.startPrank(USER); // Start acting as USER
         ERC20Mock(weth).approve(address(dsce), AMOUNT_COLLATERAL);
 
-        vm.expectRevert();
-        dsce.depositCollateral(weth, 0);
-        vm.stopPrank();
+        vm.expectRevert(); // Expect a revert
+        dsce.depositCollateral(weth, 0); // Attempt to deposit 0 collateral
+        vm.stopPrank(); // Stop acting as USER
     }
+
+    // Additional tests can be added below
 }
